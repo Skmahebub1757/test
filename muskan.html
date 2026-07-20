@@ -1,1 +1,428 @@
-hii
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muskan Shaikh — Java Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#241C15;
+    --panel:#2E2419;
+    --panel-2:#362B1D;
+    --line: rgba(237,225,211,0.14);
+    --text:#EDE1D3;
+    --dim:#A6957F;
+    --gold:#E8A33D;
+    --green:#4CAF7D;
+    --blue:#6FA8DC;
+    --max:1120px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Work Sans', sans-serif; font-weight:300;
+    line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+  a{color:inherit;}
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  h1,h2,h3{ font-family:'Sora', sans-serif; font-weight:600; letter-spacing:-0.01em; }
+  .wrap{ max-width:var(--max); margin:0 auto; padding:0 28px; }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(36,28,21,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{ display:flex; align-items:center; justify-content:space-between; height:74px; }
+  .brand{ font-family:'Sora',sans-serif; font-weight:700; font-size:1.08rem; display:flex; align-items:center; gap:9px; }
+  .brand .cup{ color:var(--gold); font-size:1rem; }
+  nav ul{ list-style:none; display:flex; gap:32px; }
+  nav ul a{ text-decoration:none; font-family:'Work Sans',sans-serif; font-size:0.85rem; font-weight:500; color:var(--dim); transition:color 0.2s ease; }
+  nav ul a:hover{ color:var(--gold); }
+  @media (max-width:760px){ nav ul{ display:none; } }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding:92px 0 70px; border-bottom:1px solid var(--line); }
+  .hero-grid{ display:grid; grid-template-columns:1fr 1.05fr; gap:56px; align-items:center; }
+  @media (max-width:940px){ .hero-grid{ grid-template-columns:1fr; } }
+
+  .status-line{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono',monospace; font-size:0.74rem; color:var(--green);
+    background:rgba(76,175,125,0.09); border:1px solid rgba(76,175,125,0.3);
+    padding:6px 12px; border-radius:20px; margin-bottom:26px;
+    opacity:0; animation:riseIn 0.7s ease 0.1s forwards;
+  }
+  .status-dot{ width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  h1.display{
+    font-size:clamp(2.1rem, 4.2vw, 3.1rem); line-height:1.15; font-weight:700;
+    opacity:0; animation:riseIn 0.8s ease 0.2s forwards;
+  }
+  h1.display .role{ color:var(--gold); }
+
+  .hero p.lede{
+    margin-top:22px; max-width:52ch; color:var(--dim); font-size:1.03rem; font-weight:300;
+    opacity:0; animation:riseIn 0.8s ease 0.35s forwards;
+  }
+
+  .hero-cta{ margin-top:32px; display:flex; gap:14px; flex-wrap:wrap; opacity:0; animation:riseIn 0.8s ease 0.5s forwards; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; padding:13px 24px;
+    font-family:'Work Sans',sans-serif; font-weight:600; font-size:0.9rem; text-decoration:none;
+    border-radius:5px; transition:all 0.2s ease; border:1px solid var(--line);
+  }
+  .btn-primary{ background:var(--gold); color:#2A1C08; border-color:var(--gold); }
+  .btn-primary:hover{ background:#F5B65C; transform:translateY(-1px); }
+  .btn-ghost{ color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--dim); }
+
+  .contact-row{
+    display:flex; gap:20px; flex-wrap:wrap; margin-top:26px;
+    font-family:'JetBrains Mono',monospace; font-size:0.76rem; color:var(--dim);
+    opacity:0; animation:riseIn 0.8s ease 0.6s forwards;
+  }
+  .contact-row a{ text-decoration:none; color:var(--dim); transition:color 0.2s ease; }
+  .contact-row a:hover{ color:var(--gold); }
+
+  @keyframes riseIn{ from{ opacity:0; transform:translateY(12px);} to{ opacity:1; transform:translateY(0);} }
+
+  /* ---------- IDE WINDOW (signature) ---------- */
+  .ide{
+    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    overflow:hidden; opacity:0; animation:riseIn 0.9s ease 0.45s forwards;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.55);
+  }
+  .ide-tabs{
+    display:flex; align-items:center; background:var(--panel-2); border-bottom:1px solid var(--line);
+  }
+  .ide-dots{ display:flex; gap:7px; padding:0 14px; }
+  .ide-dot{ width:10px; height:10px; border-radius:50%; }
+  .ide-tab{
+    font-family:'JetBrains Mono',monospace; font-size:0.76rem; color:var(--dim);
+    padding:12px 16px; border-right:1px solid var(--line); display:flex; align-items:center; gap:7px;
+  }
+  .ide-tab.active{ color:var(--text); background:var(--panel); border-bottom:2px solid var(--gold); }
+  .ide-tab .dot-file{ width:6px; height:6px; border-radius:50%; background:var(--gold); }
+
+  .code-body{ padding:20px 22px; font-family:'JetBrains Mono',monospace; font-size:0.8rem; }
+  .code-line{ display:flex; gap:16px; margin-bottom:3px; }
+  .ln{ color:#5A4A38; width:16px; text-align:right; user-select:none; flex-shrink:0; }
+  .kw{ color:var(--blue); }
+  .an{ color:var(--gold); }
+  .cls{ color:#D8C08A; }
+  .str{ color:var(--green); }
+  .cm{ color:var(--dim); font-style:italic; }
+  .txt{ color:var(--text); }
+
+  .term-panel{ border-top:1px solid var(--line); background:#1D1610; padding:16px 22px 20px; font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
+  .term-line{ color:var(--dim); margin-bottom:6px; }
+  .term-line .cmd{ color:var(--text); }
+  .term-success{ color:var(--green); font-weight:600; opacity:0; animation:appear 0.4s ease 2.6s forwards; }
+  .caret{ display:inline-block; width:6px; height:13px; background:var(--gold); vertical-align:middle; animation:blink 1s step-end infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+  @keyframes appear{ to{ opacity:1; } }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{ padding:88px 0; border-bottom:1px solid var(--line); }
+  .section-head{ margin-bottom:48px; }
+  .tag{ font-family:'JetBrains Mono',monospace; font-size:0.74rem; color:var(--gold); letter-spacing:0.06em; text-transform:uppercase; display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .tag::before{ content:''; width:22px; height:1px; background:var(--gold); }
+  .section-head h2{ font-size:clamp(1.5rem,2.6vw,2rem); }
+  .section-head p{ margin-top:12px; color:var(--dim); max-width:56ch; }
+
+  /* ---------- OBJECTIVE ---------- */
+  .objective-card{ background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:36px; }
+  .objective-card p{ font-size:1.05rem; color:var(--text); max-width:72ch; font-weight:300; }
+  .objective-card p .hl{ color:var(--gold); font-weight:500; }
+
+  /* ---------- SKILLS ---------- */
+  .skills-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:820px){ .skills-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .skills-grid{ grid-template-columns:1fr; } }
+  .skill-card{ background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:24px; }
+  .skill-card h4{ font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--blue); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:14px; }
+  .skill-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .skill-chip{
+    font-family:'JetBrains Mono',monospace; font-size:0.78rem; padding:6px 12px;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:4px; color:var(--text);
+    transition:border-color 0.2s ease, color 0.2s ease;
+  }
+  .skill-chip:hover{ border-color:var(--gold); color:var(--gold); }
+
+  /* ---------- PROJECT ---------- */
+  .project-card{ background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .project-head{ padding:32px 34px 0; }
+  .project-head h3{ font-size:1.25rem; }
+  .project-head p{ margin-top:12px; color:var(--dim); font-size:0.96rem; max-width:70ch; }
+  .project-body{ display:grid; grid-template-columns:1.1fr 1fr; gap:0; margin-top:28px; }
+  @media (max-width:800px){ .project-body{ grid-template-columns:1fr; } }
+  .project-col{ padding:26px 34px 34px; }
+  .project-col + .project-col{ border-top:1px solid var(--line); }
+  @media (min-width:801px){ .project-col + .project-col{ border-top:none; border-left:1px solid var(--line); } }
+  .project-col h5{ font-family:'JetBrains Mono',monospace; font-size:0.74rem; color:var(--gold); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:16px; }
+  .feature-list{ list-style:none; display:grid; gap:11px; }
+  .feature-list li{ padding-left:22px; position:relative; font-size:0.92rem; color:var(--text); }
+  .feature-list li::before{ content:'✓'; position:absolute; left:0; color:var(--green); font-weight:700; }
+  .stack-row{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); font-size:0.9rem; }
+  .stack-row:last-child{ border-bottom:none; }
+  .stack-row .k{ color:var(--dim); font-family:'JetBrains Mono',monospace; font-size:0.78rem; }
+  .stack-row .v{ color:var(--text); text-align:right; }
+
+  /* ---------- EDUCATION / CERT ---------- */
+  .edu-grid{ display:grid; grid-template-columns:1.2fr 1fr; gap:48px; }
+  @media (max-width:820px){ .edu-grid{ grid-template-columns:1fr; } }
+  .timeline{ position:relative; padding-left:26px; border-left:1px solid var(--line); display:grid; gap:30px; }
+  .tl-item{ position:relative; }
+  .tl-item::before{
+    content:''; position:absolute; left:-31px; top:4px; width:9px; height:9px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--gold);
+  }
+  .tl-item .period{ font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--gold); }
+  .tl-item h4{ font-size:1rem; margin-top:6px; font-family:'Sora',sans-serif; font-weight:600; }
+  .tl-item .meta{ color:var(--dim); font-size:0.88rem; margin-top:4px; }
+
+  .cert-card{ background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:26px; height:fit-content; }
+  .cert-card h4{ font-size:1rem; font-family:'Sora',sans-serif; font-weight:600; }
+  .cert-card .meta{ color:var(--dim); font-size:0.88rem; margin-top:6px; }
+
+  /* ---------- CONTACT ---------- */
+  .contact{ border-bottom:none; }
+  .contact-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:44px;
+    display:grid; grid-template-columns:1.2fr 1fr; gap:40px; align-items:center;
+  }
+  @media (max-width:820px){ .contact-card{ grid-template-columns:1fr; } }
+  .contact-card h2{ font-size:clamp(1.5rem,2.6vw,2rem); }
+  .contact-card p{ color:var(--dim); margin-top:12px; max-width:44ch; }
+  .contact-links{ display:grid; gap:14px; }
+  .clink{
+    display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:0.88rem; padding:12px 16px;
+    border:1px solid var(--line); border-radius:6px; transition:border-color 0.2s ease, color 0.2s ease;
+  }
+  .clink:hover{ border-color:var(--gold); color:var(--gold); }
+
+  footer{ padding:40px 0; }
+  .foot-wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  footer .brand{ font-size:0.9rem; }
+  .copyline{ font-family:'JetBrains Mono',monospace; font-size:0.74rem; color:var(--dim); }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="brand"><span class="cup">☕</span> Muskan Shaikh</div>
+    <ul>
+      <li><a href="#skills">skills</a></li>
+      <li><a href="#project">project</a></li>
+      <li><a href="#education">education</a></li>
+      <li><a href="#contact">contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="status-line"><span class="status-dot"></span>open to java developer roles</div>
+      <h1 class="display">Muskan Shaikh<br><span class="role">Java Developer</span></h1>
+      <p class="lede">Building full-stack applications with Java, Spring Boot, and React. I like turning manual, paper-based workflows into clean, reliable systems — and I'm looking for a team to do that with.</p>
+      <div class="hero-cta">
+        <a href="mailto:muskanshaikh5103abcd@gmail.com" class="btn btn-primary">Get in touch</a>
+        <a href="#project" class="btn btn-ghost">View project →</a>
+      </div>
+      <div class="contact-row">
+        <span>📍 Pune, Maharashtra, India</span>
+        <a href="tel:+917820914224">📞 +91 7820914224</a>
+        <a href="mailto:muskanshaikh5103abcd@gmail.com">✉️ muskanshaikh5103abcd@gmail.com</a>
+        <a href="https://www.linkedin.com/in/muskan-shaikh" target="_blank" rel="noopener">🔗 LinkedIn</a>
+      </div>
+    </div>
+
+    <div class="ide">
+      <div class="ide-tabs">
+        <div class="ide-dots">
+          <span class="ide-dot" style="background:#FF5F56"></span>
+          <span class="ide-dot" style="background:#FFBD2E"></span>
+          <span class="ide-dot" style="background:#27C93F"></span>
+        </div>
+        <div class="ide-tab active"><span class="dot-file"></span>StudentController.java</div>
+      </div>
+      <div class="code-body">
+        <div class="code-line"><span class="ln">1</span><span class="an txt">@RestController</span></div>
+        <div class="code-line"><span class="ln">2</span><span class="an txt">@RequestMapping("/api/students")</span></div>
+        <div class="code-line"><span class="ln">3</span><span class="kw">public class</span> <span class="cls">StudentController</span> {</div>
+        <div class="code-line"><span class="ln">4</span>&nbsp;&nbsp;<span class="cm">// retrieve all student records</span></div>
+        <div class="code-line"><span class="ln">5</span>&nbsp;&nbsp;<span class="an txt">@GetMapping</span></div>
+        <div class="code-line"><span class="ln">6</span>&nbsp;&nbsp;<span class="kw">public</span> <span class="cls">List</span>&lt;<span class="cls">Student</span>&gt; <span class="txt">getAll</span>() {</div>
+        <div class="code-line"><span class="ln">7</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="txt">service.findAll();</span></div>
+        <div class="code-line"><span class="ln">8</span>&nbsp;&nbsp;}</div>
+        <div class="code-line"><span class="ln">9</span>}</div>
+      </div>
+      <div class="term-panel">
+        <div class="term-line"><span class="cmd">$ mvn spring-boot:run</span></div>
+        <div class="term-line">Tomcat started on port 8080</div>
+        <div class="term-line">Started Application in 2.14 seconds</div>
+        <div class="term-line term-success">BUILD SUCCESS <span class="caret"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="objective">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="tag">Objective</div>
+      <h2>What I'm looking for</h2>
+    </div>
+    <div class="objective-card">
+      <p>Seeking a <span class="hl">Java Developer</span> position where I can apply my knowledge of Java, SQL, and web technologies. I want to use my problem-solving skills and passion for software development to contribute to organisational growth, while continuously sharpening my technical and professional abilities.</p>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="tag">Skills</div>
+      <h2>Technical skills</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <h4>Programming Language</h4>
+        <div class="skill-chips"><span class="skill-chip">Java</span></div>
+      </div>
+      <div class="skill-card">
+        <h4>Web Technologies</h4>
+        <div class="skill-chips">
+          <span class="skill-chip">HTML</span><span class="skill-chip">CSS</span>
+          <span class="skill-chip">JavaScript</span><span class="skill-chip">React</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <h4>Frameworks</h4>
+        <div class="skill-chips"><span class="skill-chip">Spring Boot</span></div>
+      </div>
+      <div class="skill-card">
+        <h4>Database</h4>
+        <div class="skill-chips"><span class="skill-chip">PostgreSQL</span><span class="skill-chip">SQL</span></div>
+      </div>
+      <div class="skill-card">
+        <h4>Build Tool</h4>
+        <div class="skill-chips"><span class="skill-chip">Maven</span></div>
+      </div>
+      <div class="skill-card">
+        <h4>Operating System</h4>
+        <div class="skill-chips"><span class="skill-chip">Windows</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="project">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="tag">Project</div>
+      <h2>Online Student Record System</h2>
+      <p>A web-based system to manage and maintain student records digitally — storing, updating, and retrieving information without the manual paperwork.</p>
+    </div>
+    <div class="project-card">
+      <div class="project-body" style="margin-top:0;">
+        <div class="project-col">
+          <h5>Key Features</h5>
+          <ul class="feature-list">
+            <li>Add, update, and delete student records</li>
+            <li>Search and view student details</li>
+            <li>Secure login system for admin</li>
+            <li>Data stored and managed in database</li>
+            <li>User-friendly interface</li>
+          </ul>
+        </div>
+        <div class="project-col">
+          <h5>Technologies Used</h5>
+          <div class="stack-row"><span class="k">FRONTEND</span><span class="v">HTML, CSS, JavaScript</span></div>
+          <div class="stack-row"><span class="k">BACKEND</span><span class="v">PHP</span></div>
+          <div class="stack-row"><span class="k">DATABASE</span><span class="v">MySQL</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="wrap">
+    <div class="edu-grid">
+      <div>
+        <div class="section-head">
+          <div class="tag">Education</div>
+          <h2>Academic background</h2>
+        </div>
+        <div class="timeline">
+          <div class="tl-item">
+            <span class="period">2022 — 2025</span>
+            <h4>B.Sc. in Computer Science</h4>
+            <div class="meta">SRTMUN University · 79.19%</div>
+          </div>
+          <div class="tl-item">
+            <span class="period">2021 — 2022</span>
+            <h4>HSC (Science)</h4>
+            <div class="meta">MSBSHSE · 66.00%</div>
+          </div>
+          <div class="tl-item">
+            <span class="period">2019 — 2020</span>
+            <h4>SSC</h4>
+            <div class="meta">MSBSHSE · 89.80%</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-head">
+          <div class="tag">Certification</div>
+          <h2>Credentials</h2>
+        </div>
+        <div class="cert-card">
+          <h4>Java Full Stack Development</h4>
+          <div class="meta">QSpider Institute</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap">
+    <div class="contact-card">
+      <div>
+        <h2>Let's build something reliable.</h2>
+        <p>Open to entry-level Java Developer roles in Pune or remote. Reach out directly — I usually reply within a day.</p>
+      </div>
+      <div class="contact-links">
+        <a class="clink" href="mailto:muskanshaikh5103abcd@gmail.com">✉️ muskanshaikh5103abcd@gmail.com</a>
+        <a class="clink" href="tel:+917820914224">📞 +91 7820914224</a>
+        <a class="clink" href="https://www.linkedin.com/in/muskan-shaikh" target="_blank" rel="noopener">🔗 linkedin.com/in/muskan-shaikh</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-wrap">
+    <div class="brand mono">Muskan Shaikh — Pune, Maharashtra, India</div>
+    <div class="copyline">© 2026 · Built with Java, Spring Boot, and one too many `mvn clean install` runs.</div>
+  </div>
+</footer>
+
+</body>
+</html>
