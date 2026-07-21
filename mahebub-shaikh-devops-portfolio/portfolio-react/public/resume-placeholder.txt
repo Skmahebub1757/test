@@ -1,2 +1,0 @@
-Replace this file: put your actual resume PDF at public/resume.pdf
-(referenced by the "Download Resume" buttons in Hero.jsx and Resume.jsx)
