@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahebub Shaikh — DevOps Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#121821;
+    --bg-grid: rgba(232,163,61,0.035);
+    --surface:#1B242D;
+    --surface-2:#212C36;
+    --border:#2C3944;
+    --border-bright:#3A4B58;
+    --text:#E9EEF2;
+    --text-muted:#8CA0AC;
+    --text-dim:#5C6D78;
+    --amber:#E8A33D;
+    --amber-dim:rgba(232,163,61,0.15);
+    --teal:#55D6C0;
+    --teal-dim:rgba(85,214,192,0.15);
+    --red:#E2685A;
+    --mono:'JetBrains Mono', monospace;
+    --sans:'Inter', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px) 0 0/40px 40px,
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  ::selection{background:var(--amber-dim); color:var(--amber);}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:rgba(18,24,33,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-inner{
+    max-width:1100px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-weight:700; font-size:15px;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--teal); box-shadow:0 0 10px var(--teal); animation:pulse-dot 2s ease-in-out infinite;}
+  @keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:0.35;}}
+  .run-status{font-family:var(--mono); font-size:11px; color:var(--text-dim); letter-spacing:0.04em;}
+  .run-status b{color:var(--teal);}
+
+  /* ===== Pipeline nav (signature element) ===== */
+  .pipeline-nav{
+    position:fixed; top:53px; left:0; right:0; z-index:99;
+    background:rgba(18,24,33,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .pipeline-nav::-webkit-scrollbar{display:none;}
+  .pipeline-track{
+    max-width:1100px; margin:0 auto; padding:16px 24px;
+    display:flex; align-items:center; min-width:max-content;
+  }
+  .stage{
+    display:flex; align-items:center; flex-direction:column; gap:8px;
+    background:none; border:none; color:var(--text-muted);
+    padding:0 18px; position:relative; flex-shrink:0;
+  }
+  .stage-node{
+    width:34px; height:34px; border-radius:50%;
+    border:2px solid var(--border-bright);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:12px; font-weight:700;
+    background:var(--surface); transition:all .35s ease;
+  }
+  .stage-label{font-family:var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; transition:color .3s ease;}
+  .stage.done .stage-node{border-color:var(--teal); color:var(--teal); background:var(--teal-dim);}
+  .stage.done .stage-label{color:var(--teal);}
+  .stage.active .stage-node{
+    border-color:var(--amber); color:var(--amber); background:var(--amber-dim);
+    box-shadow:0 0 0 4px var(--amber-dim); animation:node-breathe 1.8s ease-in-out infinite;
+  }
+  .stage.active .stage-label{color:var(--amber); font-weight:700;}
+  @keyframes node-breathe{0%,100%{box-shadow:0 0 0 4px var(--amber-dim);}50%{box-shadow:0 0 0 8px transparent;}}
+  .stage-connector{
+    width:44px; height:2px; background:var(--border-bright); position:relative; flex-shrink:0; overflow:hidden;
+  }
+  .stage-connector.filled{background:var(--teal);}
+  .stage-connector.flowing::after{
+    content:''; position:absolute; top:0; left:-30%; width:30%; height:100%;
+    background:linear-gradient(90deg, transparent, var(--amber), transparent);
+    animation:flow 1.2s linear infinite;
+  }
+  @keyframes flow{0%{left:-30%;}100%{left:100%;}}
+
+  /* ===== Page container ===== */
+  .stage-page{
+    max-width:1100px; margin:0 auto; padding:150px 24px 100px;
+    display:none;
+  }
+  .stage-page.visible{display:block; animation:page-in .5s cubic-bezier(.2,.7,.2,1);}
+  @keyframes page-in{
+    from{opacity:0; transform:translateX(24px);}
+    to{opacity:1; transform:translateX(0);}
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; color:var(--amber); letter-spacing:0.12em;
+    display:flex; align-items:center; gap:8px; margin-bottom:14px;
+  }
+  .eyebrow::before{content:'$'; color:var(--text-dim);}
+  h1.page-title{
+    font-family:var(--mono); font-size:clamp(28px,4vw,44px); font-weight:800; letter-spacing:-0.02em;
+    margin-bottom:16px; line-height:1.15;
+  }
+  .page-sub{color:var(--text-muted); font-size:16px; max-width:640px; line-height:1.7; margin-bottom:48px;}
+
+  /* ===== Hero (SOURCE) ===== */
+  .hero-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:48px; align-items:center;}
+  @media (max-width:800px){.hero-grid{grid-template-columns:1fr;}}
+  .hero-name{font-family:var(--mono); font-size:clamp(34px,5.5vw,58px); font-weight:800; line-height:1.05; letter-spacing:-0.02em; margin-bottom:14px;}
+  .hero-name .accent{color:var(--amber);}
+  .terminal-line{font-family:var(--mono); font-size:16px; color:var(--teal); min-height:24px; margin-bottom:22px;}
+  .terminal-line .cursor{display:inline-block; width:8px; height:16px; background:var(--teal); margin-left:2px; animation:blink 1s step-end infinite; vertical-align:middle;}
+  @keyframes blink{50%{opacity:0;}}
+  .hero-desc{color:var(--text-muted); line-height:1.75; margin-bottom:30px; max-width:540px;}
+  .hero-cta{display:flex; gap:12px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--mono); font-size:13px; font-weight:600; padding:12px 22px; border-radius:6px;
+    border:1px solid var(--border-bright); background:var(--surface); color:var(--text);
+    transition:all .25s ease; letter-spacing:0.02em;
+  }
+  .btn:hover{border-color:var(--amber); color:var(--amber); transform:translateY(-2px);}
+  .btn.primary{background:var(--amber); color:#161B10; border-color:var(--amber); font-weight:700;}
+  .btn.primary:hover{background:#f0b458; color:#161B10; box-shadow:0 6px 24px var(--amber-dim);}
+  .contact-mini{display:flex; flex-direction:column; gap:10px; margin-top:26px; font-family:var(--mono); font-size:13px; color:var(--text-muted);}
+  .contact-mini a{transition:color .2s;}
+  .contact-mini a:hover{color:var(--amber);}
+
+  .console{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .console-head{display:flex; align-items:center; gap:6px; padding:10px 14px; background:var(--surface-2); border-bottom:1px solid var(--border);}
+  .console-head span{width:10px;height:10px;border-radius:50%;background:var(--border-bright);}
+  .console-head span:nth-child(1){background:#E2685A;}
+  .console-head span:nth-child(2){background:#E8A33D;}
+  .console-head span:nth-child(3){background:#55D6C0;}
+  .console-title{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--text-dim);}
+  .console-body{padding:18px; font-family:var(--mono); font-size:12.5px; line-height:2; color:var(--text-muted);}
+  .console-body .k{color:var(--amber);}
+  .console-body .v{color:var(--teal);}
+
+  /* ===== Timeline (Education / Deploy=Experience) ===== */
+  .timeline{position:relative; padding-left:26px;}
+  .timeline::before{content:''; position:absolute; left:6px; top:6px; bottom:6px; width:2px; background:linear-gradient(var(--teal), var(--border));}
+  .t-item{position:relative; margin-bottom:34px; opacity:0; transform:translateY(16px); animation:card-in .55s cubic-bezier(.2,.7,.2,1) forwards;}
+  .t-item::before{content:''; position:absolute; left:-26px; top:4px; width:13px; height:13px; border-radius:50%; background:var(--bg); border:2px solid var(--teal);}
+  .t-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px 22px; transition:border-color .25s, transform .25s;}
+  .t-card:hover{border-color:var(--amber); transform:translateX(4px);}
+  .t-top{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:6px;}
+  .t-degree{font-weight:700; font-size:16px;}
+  .t-date{font-family:var(--mono); font-size:11.5px; color:var(--amber); background:var(--amber-dim); padding:3px 9px; border-radius:20px;}
+  .t-org{color:var(--text-muted); font-size:13.5px; margin-bottom:4px;}
+  .t-score{font-family:var(--mono); font-size:12px; color:var(--teal);}
+
+  @keyframes card-in{to{opacity:1; transform:translateY(0);}}
+
+  /* ===== Skills (TEST) — monitor grid ===== */
+  .skill-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px;}
+  .skill-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px;
+    opacity:0; transform:translateY(16px); animation:card-in .5s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .skill-card:hover{border-color:var(--teal);}
+  .skill-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .skill-name{font-family:var(--mono); font-weight:700; font-size:13px; letter-spacing:0.03em;}
+  .skill-status{font-family:var(--mono); font-size:10px; color:var(--teal); display:flex; align-items:center; gap:5px;}
+  .skill-status::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--teal); box-shadow:0 0 6px var(--teal);}
+  .skill-tags{display:flex; flex-wrap:wrap; gap:7px;}
+  .skill-tags span{font-family:var(--mono); font-size:11px; color:var(--text-muted); background:var(--surface-2); border:1px solid var(--border); padding:4px 9px; border-radius:5px;}
+
+  /* ===== Cards grid for Projects (RELEASE) ===== */
+  .card-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;}
+  .proj-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; position:relative; overflow:hidden;
+    opacity:0; transform:translateY(18px); animation:card-in .55s cubic-bezier(.2,.7,.2,1) forwards;
+    transition:transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+  }
+  .proj-card:hover{transform:translateY(-6px); border-color:var(--amber); box-shadow:0 16px 40px rgba(0,0,0,0.35);}
+  .proj-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--amber), transparent);
+    transform:scaleX(0); transform-origin:left; transition:transform .4s ease;
+  }
+  .proj-card:hover::before{transform:scaleX(1);}
+  .proj-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;}
+  .proj-name{font-weight:700; font-size:16px; line-height:1.35;}
+  .proj-badge{font-family:var(--mono); font-size:9.5px; letter-spacing:0.06em; color:var(--teal); background:var(--teal-dim); padding:3px 8px; border-radius:20px; white-space:nowrap; flex-shrink:0;}
+  .proj-desc{color:var(--text-muted); font-size:13.5px; line-height:1.7; margin-bottom:14px;}
+  .proj-desc ul{padding-left:16px; display:flex; flex-direction:column; gap:5px;}
+  .proj-footer{display:flex; justify-content:space-between; align-items:center;}
+  .proj-remove{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); background:none; border:1px solid var(--border); padding:5px 10px; border-radius:5px; transition:.2s;}
+  .proj-remove:hover{color:var(--red); border-color:var(--red);}
+  .just-added{animation:flash-in .9s ease-out, card-in .55s cubic-bezier(.2,.7,.2,1) forwards !important;}
+  @keyframes flash-in{0%{box-shadow:0 0 0 0 var(--amber);}70%{box-shadow:0 0 0 14px transparent;}100%{box-shadow:0 0 0 0 transparent;}}
+
+  .add-card{
+    border:1.5px dashed var(--border-bright); border-radius:12px; padding:22px;
+    display:flex; align-items:center; justify-content:center; min-height:120px;
+    background:transparent; color:var(--text-dim); font-family:var(--mono); font-size:13px;
+    transition:all .25s ease; gap:8px;
+  }
+  .add-card:hover{border-color:var(--amber); color:var(--amber); background:var(--amber-dim);}
+  .add-card .plus{font-size:18px;}
+
+  /* ===== Form panel ===== */
+  .form-panel{
+    background:var(--surface-2); border:1px solid var(--border-bright); border-radius:12px; padding:24px;
+    margin-bottom:24px; max-height:0; overflow:hidden; opacity:0;
+    transition:max-height .4s ease, opacity .3s ease, padding .4s ease;
+  }
+  .form-panel.open{max-height:900px; opacity:1; padding:24px; margin-bottom:24px;}
+  .form-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;}
+  @media (max-width:600px){.form-row{grid-template-columns:1fr;}}
+  .form-field{display:flex; flex-direction:column; gap:6px;}
+  .form-field.full{grid-column:1/-1;}
+  .form-field label{font-family:var(--mono); font-size:11px; color:var(--text-muted); letter-spacing:0.04em;}
+  .form-field input, .form-field textarea{
+    background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:10px 12px;
+    color:var(--text); font-family:var(--sans); font-size:13.5px; resize:vertical;
+  }
+  .form-field input:focus, .form-field textarea:focus{outline:none; border-color:var(--amber);}
+  .form-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:6px;}
+
+  /* ===== Footer nav buttons ===== */
+  .page-nav-btns{display:flex; justify-content:space-between; margin-top:56px; padding-top:24px; border-top:1px solid var(--border);}
+
+  /* ===== Contact (MONITOR) ===== */
+  .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:700px){.contact-grid{grid-template-columns:1fr;}}
+  .contact-card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px; transition:.25s;}
+  .contact-card:hover{border-color:var(--teal); transform:translateY(-3px);}
+  .contact-card .lbl{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); letter-spacing:0.08em; margin-bottom:8px;}
+  .contact-card .val{font-size:15px; font-weight:600;}
+  .cert-box{margin-top:36px; background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--amber); border-radius:8px; padding:18px 22px;}
+  .cert-box .lbl{font-family:var(--mono); font-size:10.5px; color:var(--amber); letter-spacing:0.08em; margin-bottom:6px;}
+
+  footer.site{text-align:center; padding:30px; font-family:var(--mono); font-size:11px; color:var(--text-dim); border-top:1px solid var(--border);}
+
+  a.icon-link{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:12px;
+    color:var(--text-muted); border:1px solid var(--border); padding:8px 14px; border-radius:6px; transition:.2s;
+  }
+  a.icon-link:hover{color:var(--amber); border-color:var(--amber);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="dot"></span> mahebub.shaikh</div>
+    <div class="run-status">pipeline: <b>passing</b> · stage <span id="stageCounter">1</span>/6</div>
+  </div>
+</div>
+
+<nav class="pipeline-nav">
+  <div class="pipeline-track" id="pipelineTrack"></div>
+</nav>
+
+<!-- ===================== SOURCE / HERO ===================== -->
+<section class="stage-page" id="page-source" data-stage="0">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow">git checkout main</div>
+      <h1 class="hero-name">Mahebub <span class="accent">Shaikh</span></h1>
+      <div class="terminal-line"><span id="typeTarget"></span><span class="cursor"></span></div>
+      <p class="hero-desc">Entry-level DevOps engineer based in Pune, India. Six months deep in AWS, Jenkins, Docker and Terraform, provisioning infrastructure and shipping pipelines that don't wake anyone up at 3am. Looking for a team that ships often and learns in public.</p>
+      <div class="hero-cta">
+        <button class="btn primary" onclick="goToStage(4)">View projects →</button>
+        <button class="btn" onclick="goToStage(3)">See experience</button>
+      </div>
+      <div class="contact-mini">
+        <a href="tel:+918767175780">📞 +91 8767175780</a>
+        <a href="mailto:shaikhmahebub160@gmail.com">✉️ shaikhmahebub160@gmail.com</a>
+        <span>📍 Pune, Maharashtra, India</span>
+      </div>
+    </div>
+    <div class="console">
+      <div class="console-head"><span></span><span></span><span></span><div class="console-title">whoami.sh</div></div>
+      <div class="console-body">
+        <div><span class="k">role</span>: <span class="v">"DevOps Engineer (Entry-level)"</span></div>
+        <div><span class="k">location</span>: <span class="v">"Pune, IN"</span></div>
+        <div><span class="k">cloud</span>: <span class="v">["AWS"]</span></div>
+        <div><span class="k">tools</span>: <span class="v">["Jenkins","Docker","K8s","Terraform"]</span></div>
+        <div><span class="k">education</span>: <span class="v">"MCA, SRTMUN — 7.94 CGPA"</span></div>
+        <div><span class="k">status</span>: <span class="v">"open_to_work"</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="page-nav-btns"><span></span><button class="btn" onclick="goToStage(1)">next: build →</button></div>
+</section>
+
+<!-- ===================== BUILD / EDUCATION ===================== -->
+<section class="stage-page" id="page-build" data-stage="1">
+  <div class="eyebrow">stage_02 · build</div>
+  <h1 class="page-title">Education</h1>
+  <p class="page-sub">The academic base the whole pipeline is built on top of.</p>
+  <div class="timeline" id="eduTimeline"></div>
+  <div class="page-nav-btns"><button class="btn" onclick="goToStage(0)">← back</button><button class="btn" onclick="goToStage(2)">next: test →</button></div>
+</section>
+
+<!-- ===================== TEST / SKILLS ===================== -->
+<section class="stage-page" id="page-test" data-stage="2">
+  <div class="eyebrow">stage_03 · test</div>
+  <h1 class="page-title">Technical Skills</h1>
+  <p class="page-sub">Everything below is passing its checks.</p>
+  <div class="skill-grid" id="skillGrid"></div>
+  <div class="page-nav-btns"><button class="btn" onclick="goToStage(1)">← back</button><button class="btn" onclick="goToStage(3)">next: deploy →</button></div>
+</section>
+
+<!-- ===================== DEPLOY / EXPERIENCE ===================== -->
+<section class="stage-page" id="page-deploy" data-stage="3">
+  <div class="eyebrow">stage_04 · deploy</div>
+  <h1 class="page-title">Experience</h1>
+  <p class="page-sub">Where the skills got pointed at real infrastructure.</p>
+
+  <div class="form-panel" id="expForm">
+    <div class="form-row">
+      <div class="form-field"><label>ROLE</label><input id="exp-role" placeholder="e.g. DevOps Intern"></div>
+      <div class="form-field"><label>COMPANY</label><input id="exp-company" placeholder="e.g. Acme Cloud Pvt Ltd"></div>
+      <div class="form-field"><label>DURATION</label><input id="exp-duration" placeholder="e.g. Jul 2026 – Present"></div>
+      <div class="form-field"><label>LOCATION</label><input id="exp-location" placeholder="e.g. Pune, India"></div>
+      <div class="form-field full"><label>RESPONSIBILITIES (one per line)</label><textarea id="exp-points" rows="4" placeholder="Automated deployments with Jenkins&#10;Managed EKS clusters"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeForm('expForm')">Cancel</button>
+      <button class="btn primary" onclick="addExperience()">Add experience</button>
+    </div>
+  </div>
+
+  <div class="timeline" id="expTimeline"></div>
+  <button class="add-card" style="margin-top:16px;width:100%;" onclick="openForm('expForm')"><span class="plus">+</span> Add experience</button>
+
+  <div class="page-nav-btns"><button class="btn" onclick="goToStage(2)">← back</button><button class="btn" onclick="goToStage(4)">next: release →</button></div>
+</section>
+
+<!-- ===================== RELEASE / PROJECTS ===================== -->
+<section class="stage-page" id="page-release" data-stage="4">
+  <div class="eyebrow">stage_05 · release</div>
+  <h1 class="page-title">Projects</h1>
+  <p class="page-sub">Shipped, tagged, and released to production.</p>
+
+  <div class="form-panel" id="projForm">
+    <div class="form-row">
+      <div class="form-field full"><label>PROJECT NAME</label><input id="proj-name" placeholder="e.g. Automated AWS 3-Tier Infrastructure"></div>
+      <div class="form-field"><label>TAG / TYPE</label><input id="proj-tag" placeholder="e.g. terraform · aws" value="deployed"></div>
+      <div class="form-field"><label>(optional) LINK</label><input id="proj-link" placeholder="github.com/..."></div>
+      <div class="form-field full"><label>DETAILS (one per line)</label><textarea id="proj-points" rows="4" placeholder="Provisioned VPC, subnets, EC2 via Terraform&#10;Reduced deployment drift with IaC"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeForm('projForm')">Cancel</button>
+      <button class="btn primary" onclick="addProject()">Add project</button>
+    </div>
+  </div>
+
+  <div class="card-grid" id="projGrid"></div>
+
+  <div class="page-nav-btns"><button class="btn" onclick="goToStage(3)">← back</button><button class="btn" onclick="goToStage(5)">next: monitor →</button></div>
+</section>
+
+<!-- ===================== MONITOR / CONTACT ===================== -->
+<section class="stage-page" id="page-monitor" data-stage="5">
+  <div class="eyebrow">stage_06 · monitor</div>
+  <h1 class="page-title">Let's talk</h1>
+  <p class="page-sub">All systems green. Reach out any time.</p>
+  <div class="contact-grid">
+    <div class="contact-card"><div class="lbl">PHONE</div><div class="val">+91 8767175780</div></div>
+    <div class="contact-card"><div class="lbl">EMAIL</div><div class="val">shaikhmahebub160@gmail.com</div></div>
+    <div class="contact-card"><div class="lbl">LOCATION</div><div class="val">Pune, Maharashtra, India</div></div>
+    <div class="contact-card"><div class="lbl">LINKS</div><div style="display:flex;gap:10px;margin-top:4px;"><a class="icon-link" href="#">🔗 LinkedIn</a><a class="icon-link" href="#">🔗 GitHub</a></div></div>
+  </div>
+  <div class="cert-box">
+    <div class="lbl">CERTIFICATION</div>
+    <div style="font-weight:700;">Master's in Cloud Architecture (AWS)</div>
+    <div style="color:var(--text-muted); font-size:13.5px; margin-top:2px;">Fortune Cloud Technologies · Jan 2025</div>
+  </div>
+  <div class="page-nav-btns"><button class="btn" onclick="goToStage(4)">← back</button><button class="btn primary" onclick="goToStage(0)">restart pipeline ↻</button></div>
+</section>
+
+<footer class="site">build #2026.07 · rendered client-side · no data leaves this page</footer>
+
+<script>
+const stages = ['source','build','test','deploy','release','monitor'];
+const stageLabels = ['Source','Build','Test','Deploy','Release','Monitor'];
+let currentStage = 0;
+
+// ---------- Pipeline nav render ----------
+function renderPipelineNav(){
+  const track = document.getElementById('pipelineTrack');
+  track.innerHTML = '';
+  stages.forEach((s,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'stage' + (i===currentStage?' active':'') + (i<currentStage?' done':'');
+    btn.onclick = ()=>goToStage(i);
+    btn.innerHTML = `<div class="stage-node">${i<currentStage?'✓':i+1}</div><div class="stage-label">${stageLabels[i]}</div>`;
+    track.appendChild(btn);
+    if(i < stages.length-1){
+      const conn = document.createElement('div');
+      conn.className = 'stage-connector' + (i<currentStage?' filled':'') + (i===currentStage?' flowing':'');
+      track.appendChild(conn);
+    }
+  });
+}
+
+function goToStage(i){
+  currentStage = i;
+  document.querySelectorAll('.stage-page').forEach(p=>p.classList.remove('visible'));
+  document.getElementById('page-'+stages[i]).classList.add('visible');
+  document.getElementById('stageCounter').textContent = i+1;
+  renderPipelineNav();
+  window.scrollTo({top:0, behavior:'smooth'});
+  replayCardAnimations(stages[i]);
+}
+
+function replayCardAnimations(stageName){
+  const page = document.getElementById('page-'+stageName);
+  const cards = page.querySelectorAll('.t-item, .skill-card, .proj-card');
+  cards.forEach((c,idx)=>{
+    c.style.animation = 'none';
+    void c.offsetWidth;
+    c.style.animation = `card-in .55s cubic-bezier(.2,.7,.2,1) forwards`;
+    c.style.animationDelay = (idx*0.08)+'s';
+  });
+}
+
+// ---------- Typing effect ----------
+const typeStrings = ["Provisioning infrastructure...", "Automating deployments...", "Monitoring uptime..."];
+let tsIdx=0, chIdx=0, deleting=false;
+function typeLoop(){
+  const el = document.getElementById('typeTarget');
+  const full = typeStrings[tsIdx];
+  if(!deleting){
+    chIdx++;
+    el.textContent = full.slice(0,chIdx);
+    if(chIdx===full.length){ deleting=true; setTimeout(typeLoop, 1400); return; }
+  } else {
+    chIdx--;
+    el.textContent = full.slice(0,chIdx);
+    if(chIdx===0){ deleting=false; tsIdx=(tsIdx+1)%typeStrings.length; }
+  }
+  setTimeout(typeLoop, deleting?35:55);
+}
+
+// ---------- Data ----------
+let education = [
+  {degree:"Master of Computer Application (MCA)", org:"SRTMUN University", date:"2024 – 2026", score:"7.94 CGPA"},
+  {degree:"B.Sc. Computer Science", org:"SRTMUN University", date:"2021 – 2024", score:"8.58 CGPA"},
+  {degree:"HSC (Science)", org:"MSBSHSE", date:"2020 – 2021", score:"83.61%"}
+];
+
+let skills = [
+  {name:"Cloud Computing", tags:["EC2","RDS","EKS","IAM","VPC","S3","CloudWatch"]},
+  {name:"DevOps Tools", tags:["Git","Jenkins","Docker","Kubernetes","Terraform"]},
+  {name:"Operating Systems", tags:["Ubuntu Linux","Windows"]},
+  {name:"Database", tags:["MySQL"]},
+  {name:"Web Servers", tags:["Nginx"]}
+];
+
+let experience = [
+  {role:"Cloud Intern (6 Months)", company:"Cravita Technology", location:"Pune", duration:"Jan 2026 – Jun 2026",
+   points:["Provisioned and managed AWS resources including EC2, IAM, S3, and VPC",
+           "Monitored cloud infrastructure and supported routine maintenance",
+           "Automated application deployment using Jenkins",
+           "Built and managed Docker containers for deployment and testing",
+           "Supported Linux server administration and troubleshooting"]}
+];
+
+let projects = [
+  {name:"Automated AWS 3-Tier Infrastructure using Terraform", tag:"terraform · aws",
+   points:["Designed and provisioned a secure 3-tier AWS architecture with Terraform",
+           "Created VPC, public/private subnets, route tables, IGW and EC2 instances",
+           "Improved deployment consistency through Infrastructure as Code"]},
+  {name:"End-to-End CI/CD Pipeline on AWS", tag:"jenkins · docker · k8s",
+   points:["Built an automated CI/CD pipeline using GitHub, Jenkins, Docker and Kubernetes",
+           "Automated application build, testing and deployment",
+           "Reduced manual deployment effort through continuous integration"]},
+  {name:"Jenkins Log-Size Watcher → S3", tag:"jenkins · s3 · freelance",
+   points:["Built a Jenkins pipeline to check access-log file size",
+           "Auto-uploaded logs to S3 once a size threshold was reached"]},
+  {name:"Containerized App on Kubernetes", tag:"docker · k8s · freelance",
+   points:["Deployed a containerized web app on Kubernetes",
+           "Managed scaling with ReplicaSet"]},
+  {name:"Nginx Reverse Proxy behind ELB", tag:"nginx · elb · freelance",
+   points:["Deployed dynamic websites on AWS using Nginx as reverse proxy",
+           "Ensured high availability behind Elastic Load Balancers"]}
+];
+
+// ---------- Renderers ----------
+function renderEducation(){
+  const el = document.getElementById('eduTimeline');
+  el.innerHTML = education.map((e,i)=>`
+    <div class="t-item" style="animation-delay:${i*0.08}s">
+      <div class="t-card">
+        <div class="t-top"><div class="t-degree">${e.degree}</div><div class="t-date">${e.date}</div></div>
+        <div class="t-org">${e.org}</div>
+        <div class="t-score">${e.score}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderSkills(){
+  const el = document.getElementById('skillGrid');
+  el.innerHTML = skills.map((s,i)=>`
+    <div class="skill-card" style="animation-delay:${i*0.07}s">
+      <div class="skill-head"><div class="skill-name">${s.name}</div><div class="skill-status">passing</div></div>
+      <div class="skill-tags">${s.tags.map(t=>`<span>${t}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function renderExperience(){
+  const el = document.getElementById('expTimeline');
+  el.innerHTML = experience.map((e,i)=>`
+    <div class="t-item" style="animation-delay:${i*0.08}s">
+      <div class="t-card">
+        <div class="t-top"><div class="t-degree">${e.role}</div><div class="t-date">${e.duration}</div></div>
+        <div class="t-org">${e.company}${e.location? ' · '+e.location:''}</div>
+        <ul style="margin-top:10px; padding-left:18px; display:flex; flex-direction:column; gap:5px; color:var(--text-muted); font-size:13.5px; line-height:1.6;">
+          ${e.points.map(p=>`<li>${p}</li>`).join('')}
+        </ul>
+      </div>
+    </div>`).join('');
+}
+
+function renderProjects(justAddedIdx=-1){
+  const el = document.getElementById('projGrid');
+  el.innerHTML = projects.map((p,i)=>`
+    <div class="proj-card ${i===justAddedIdx?'just-added':''}" style="animation-delay:${i===justAddedIdx?0:i*0.07}s">
+      <div class="proj-top"><div class="proj-name">${p.name}</div><div class="proj-badge">${p.tag}</div></div>
+      <div class="proj-desc"><ul>${p.points.map(pt=>`<li>${pt}</li>`).join('')}</ul></div>
+      <div class="proj-footer">
+        <span style="font-family:var(--mono);font-size:10.5px;color:var(--text-dim);">#0${i+1}</span>
+        <button class="proj-remove" onclick="removeProject(${i})">remove</button>
+      </div>
+    </div>`).join('') + `
+    <button class="add-card" onclick="openForm('projForm')"><span class="plus">+</span> Add project</button>`;
+}
+
+// ---------- Form controls ----------
+function openForm(id){ document.getElementById(id).classList.add('open'); document.getElementById(id).scrollIntoView({behavior:'smooth', block:'center'}); }
+function closeForm(id){ document.getElementById(id).classList.remove('open'); }
+
+function addExperience(){
+  const role = document.getElementById('exp-role').value.trim();
+  const company = document.getElementById('exp-company').value.trim();
+  const duration = document.getElementById('exp-duration').value.trim();
+  const location = document.getElementById('exp-location').value.trim();
+  const points = document.getElementById('exp-points').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!role || !company){ alert('Please add at least a role and company.'); return; }
+  experience.unshift({role, company, location, duration, points: points.length?points:['—']});
+  renderExperience();
+  closeForm('expForm');
+  ['exp-role','exp-company','exp-duration','exp-location','exp-points'].forEach(id=>document.getElementById(id).value='');
+}
+
+function addProject(){
+  const name = document.getElementById('proj-name').value.trim();
+  const tag = document.getElementById('proj-tag').value.trim() || 'project';
+  const points = document.getElementById('proj-points').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!name){ alert('Please add a project name.'); return; }
+  projects.unshift({name, tag, points: points.length?points:['—']});
+  renderProjects(0);
+  closeForm('projForm');
+  ['proj-name','proj-tag','proj-link','proj-points'].forEach(id=>document.getElementById(id).value='');
+}
+
+function removeProject(i){
+  projects.splice(i,1);
+  renderProjects();
+}
+
+// ---------- Init ----------
+renderPipelineNav();
+renderEducation();
+renderSkills();
+renderExperience();
+renderProjects();
+goToStage(0);
+typeLoop();
+</script>
+</body>
+</html>
